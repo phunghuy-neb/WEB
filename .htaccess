@@ -1,0 +1,16 @@
+# Cache tài nguyên tĩnh (ảnh, CSS) để các lần tải lại trang sau nhanh và ổn định hơn.
+# CSS đã có ?v=<thời gian sửa file> trong includes/header.php nên cache dài hạn
+# vẫn luôn lấy đúng bản mới nhất khi file thay đổi.
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType text/css "access plus 1 year"
+</IfModule>
+
+<IfModule mod_headers.c>
+    <FilesMatch "\.(jpg|jpeg|png|webp|css)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+</IfModule>

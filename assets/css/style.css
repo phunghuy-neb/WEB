@@ -1,0 +1,77 @@
+/* ======== FRONTEND: CSS tùy chỉnh (vừa phải trên nền Bootstrap) ======== */
+
+:root {
+    --main-color: #2563eb;
+}
+
+/* Ghi đè scroll-behavior:smooth mặc định của Bootstrap (Bootstrap đặt trên :root
+   nên phải ghi đè đúng :root mới thắng được, đặt trên html không đủ độ ưu tiên).
+   Khi bấm yêu thích và trang tải lại rồi nhảy tới #product-x, cuộn tức thì
+   thay vì trượt mượt (trượt mượt từ đầu trang xuống tạo cảm giác giật). */
+:root {
+    scroll-behavior: auto;
+}
+
+body {
+    background-color: #f8f9fa;
+}
+
+a {
+    color: var(--main-color);
+}
+
+.navbar.bg-primary {
+    background-color: var(--main-color) !important;
+}
+
+.btn-primary {
+    background-color: var(--main-color);
+    border-color: var(--main-color);
+}
+
+.btn-primary:hover {
+    background-color: #1d4ed8;
+    border-color: #1d4ed8;
+}
+
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* ---- Ảnh sản phẩm trong danh sách/wishlist: thu nhỏ vừa khung, không cắt/phóng to ---- */
+.product-thumb {
+    height: 200px;
+    object-fit: contain;
+    background-color: #f8f9fa;
+    padding: 10px;
+}
+
+/* ---- Sidebar admin ---- */
+.sidebar {
+    width: 230px;
+    min-width: 230px;
+}
+
+.sidebar .nav-link {
+    border-radius: 8px;
+}
+
+.sidebar .nav-link.active,
+.sidebar .nav-link:hover {
+    background-color: var(--main-color);
+}
+
+/* ---- Badge trạng thái đơn hàng ---- */
+.badge-status-pending { background-color: #6c757d; }
+.badge-status-confirmed { background-color: #0d6efd; }
+.badge-status-shipping { background-color: #ffc107; color: #212529; }
+.badge-status-completed { background-color: #198754; }
+.badge-status-cancelled { background-color: #dc3545; }
+
+/* ---- Badge hạng thành viên ---- */
+.badge-tier-dong { background-color: #a0522d; }
+.badge-tier-bac { background-color: #94a3b8; color: #212529; }
+.badge-tier-vang { background-color: #eab308; color: #212529; }
+.badge-tier-kim-cuong { background-color: #38bdf8; }
