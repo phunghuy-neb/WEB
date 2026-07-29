@@ -15,6 +15,41 @@ if (!$customer) {
     exit;
 }
 
+// ---- Sửa thông tin khách hàng (chỉ họ tên, SĐT, địa chỉ) ----
+$editErrors = [];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['form_action'] ?? '') === 'update_customer') {
+    verify_csrf();
+
+    $fullName = trim($_POST['full_name'] ?? '');
+    $phone = trim($_POST['phone'] ?? '');
+    $address = trim($_POST['address'] ?? '');
+
+    if ($fullName === '') {
+        $editErrors[] = 'Vui lòng nhập họ tên.';
+    }
+
+    if (empty($editErrors)) {
+        $stmt = $pdo->prepare("UPDATE users SET full_name = ?, phone = ?, address = ? WHERE id = ? AND role = 'customer'");
+        $stmt->execute([$fullName, $phone, $address, $id]);
+
+        header('Location: ' . BASE_URL . 'admin/customer_detail.php?id=' . $id);
+        exit;
+    }
+}
+
+// ---- Khóa / mở khóa tài khoản (đảo trạng thái hiện tại) ----
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['form_action'] ?? '') === 'toggle_status') {
+    verify_csrf();
+
+    $newStatus = $customer['status'] === 'locked' ? 'active' : 'locked';
+    $stmt = $pdo->prepare("UPDATE users SET status = ? WHERE id = ? AND role = 'customer'");
+    $stmt->execute([$newStatus, $id]);
+
+    header('Location: ' . BASE_URL . 'admin/customer_detail.php?id=' . $id);
+    exit;
+}
+
 $spent = total_spent($pdo, $id);
 $tier = get_tier($pdo, $spent);
 $label = customer_label($spent, $customer['created_at']);
@@ -49,7 +84,22 @@ require __DIR__ . '/../includes/header.php';
             <p class="mb-1"><strong>Email:</strong> <?= e($customer['email']) ?></p>
             <p class="mb-1"><strong>Điện thoại:</strong> <?= e($customer['phone']) ?></p>
             <p class="mb-1"><strong>Địa chỉ:</strong> <?= e($customer['address']) ?></p>
-            <p class="mb-0"><strong>Ngày đăng ký:</strong> <?= e(date('d/m/Y', strtotime($customer['created_at']))) ?></p>
+            <p class="mb-1"><strong>Ngày đăng ký:</strong> <?= e(date('d/m/Y', strtotime($customer['created_at']))) ?></p>
+            <p class="mb-0"><strong>Trạng thái:</strong>
+                <span class="badge <?= $customer['status'] === 'locked' ? 'bg-danger' : 'bg-success' ?>">
+                    <?= $customer['status'] === 'locked' ? 'Đã khóa' : 'Hoạt động' ?>
+                </span>
+            </p>
+            <form method="post" action="" class="mt-3"
+                  onsubmit="return confirm('<?= $customer['status'] === 'locked' ? 'Bạn có chắc muốn mở khóa tài khoản này?' : 'Bạn có chắc muốn khóa tài khoản này? Khách sẽ không thể đăng nhập nữa.' ?>')">
+                <?= csrf_field() ?>
+                <input type="hidden" name="form_action" value="toggle_status">
+                <?php if ($customer['status'] === 'locked'): ?>
+                    <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-unlock"></i> Mở khóa tài khoản</button>
+                <?php else: ?>
+                    <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-lock"></i> Khóa tài khoản</button>
+                <?php endif; ?>
+            </form>
         </div>
     </div>
     <div class="col-md-6">
@@ -61,6 +111,42 @@ require __DIR__ . '/../includes/header.php';
             </p>
             <p class="mb-1"><strong>Phân loại:</strong> <?= e($label) ?></p>
             <p class="mb-0"><strong>Điểm hiện có:</strong> <?= (int) $customer['points'] ?> điểm</p>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="card p-4">
+            <h5 class="mb-3"><i class="bi bi-pencil-square"></i> Sửa thông tin khách hàng</h5>
+
+            <?php if (!empty($editErrors)): ?>
+                <div class="alert alert-danger">
+                    <ul class="mb-0 ps-3">
+                        <?php foreach ($editErrors as $err): ?>
+                            <li><?= e($err) ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            <?php endif; ?>
+
+            <form method="post" action="">
+                <?= csrf_field() ?>
+                <input type="hidden" name="form_action" value="update_customer">
+                <div class="mb-3">
+                    <label class="form-label">Họ tên</label>
+                    <input type="text" name="full_name" class="form-control" value="<?= e($customer['full_name']) ?>" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Số điện thoại</label>
+                    <input type="text" name="phone" class="form-control" value="<?= e($customer['phone']) ?>">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Địa chỉ</label>
+                    <input type="text" name="address" class="form-control" value="<?= e($customer['address']) ?>">
+                </div>
+                <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+            </form>
         </div>
     </div>
 </div>

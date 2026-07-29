@@ -18,6 +18,7 @@ CREATE TABLE users (
   address VARCHAR(255),
   role ENUM('admin','customer') NOT NULL DEFAULT 'customer',
   points INT NOT NULL DEFAULT 0,
+  status ENUM('active','locked') NOT NULL DEFAULT 'active',
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

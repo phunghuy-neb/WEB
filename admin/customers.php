@@ -50,6 +50,7 @@ require __DIR__ . '/../includes/header.php';
                     <th>Tổng chi tiêu</th>
                     <th>Hạng</th>
                     <th>Phân loại</th>
+                    <th>Trạng thái</th>
                     <th></th>
                 </tr>
             </thead>
@@ -61,6 +62,11 @@ require __DIR__ . '/../includes/header.php';
                         <td><?= money($c['spent']) ?></td>
                         <td><span class="badge <?= tier_badge_class($c['tier']['name']) ?>"><?= e($c['tier']['name']) ?></span></td>
                         <td><?= e($c['label']) ?></td>
+                        <td>
+                            <span class="badge <?= $c['status'] === 'locked' ? 'bg-danger' : 'bg-success' ?>">
+                                <?= $c['status'] === 'locked' ? 'Đã khóa' : 'Hoạt động' ?>
+                            </span>
+                        </td>
                         <td>
                             <a href="<?= BASE_URL ?>admin/customer_detail.php?id=<?= $c['id'] ?>" class="btn btn-sm btn-outline-primary">
                                 Xem chi tiết

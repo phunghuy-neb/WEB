@@ -28,15 +28,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $stmt->fetch();
 
         if ($user && password_verify($password, $user['password'])) {
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['full_name'] = $user['full_name'];
-            $_SESSION['role'] = $user['role'];
+            // Tài khoản bị khóa: không gán session, chặn đăng nhập
+            if ($user['status'] === 'locked') {
+                $errors[] = 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.';
+            } else {
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['full_name'] = $user['full_name'];
+                $_SESSION['role'] = $user['role'];
 
-            header('Location: ' . BASE_URL . ($user['role'] === 'admin' ? 'admin/index.php' : 'index.php'));
-            exit;
+                header('Location: ' . BASE_URL . ($user['role'] === 'admin' ? 'admin/index.php' : 'index.php'));
+                exit;
+            }
+        } else {
+            $errors[] = 'Email hoặc mật khẩu không đúng.';
         }
-
-        $errors[] = 'Email hoặc mật khẩu không đúng.';
     }
 }
 
