@@ -83,12 +83,6 @@ require __DIR__ . '/includes/header.php';
             <p class="text-center mt-3 mb-0">
                 Chưa có tài khoản? <a href="<?= BASE_URL ?>register.php">Đăng ký</a>
             </p>
-
-            <div class="alert alert-info mt-3 mb-0 small">
-                <strong>Tài khoản demo</strong> (mật khẩu chung: <code>admin123</code>)<br>
-                Admin: <code>admin@shop.vn</code><br>
-                Khách: <code>a@gmail.com</code>
-            </div>
         </div>
     </div>
 </div>

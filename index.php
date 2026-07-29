@@ -24,7 +24,7 @@ if (isset($_GET['add_wishlist'])) {
     exit;
 }
 
-// Bỏ yêu thích ngay tại trang danh sách (không cần vào mục yêu thích)
+// Bỏ yêu thích ngay tại trang danh sách 
 if (isset($_GET['remove_wishlist'])) {
     require_login();
     $pid = (int) $_GET['remove_wishlist'];
