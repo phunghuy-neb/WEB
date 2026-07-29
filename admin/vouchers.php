@@ -77,7 +77,7 @@ require __DIR__ . '/../includes/header.php';
 <!-- ======== FRONTEND: giao diện ======== -->
 <h4 class="mb-4"><i class="bi bi-ticket-perforated"></i> Quản lý voucher</h4>
 
-<div class="card p-3 mb-4">
+<div class="card p-3 mb-4 <?= $editVoucher ? 'border border-primary border-2' : '' ?>" id="voucherForm">
     <h6 class="mb-3"><?= $editVoucher ? 'Sửa voucher' : 'Thêm voucher mới' ?></h6>
 
     <?php if (!empty($errors)): ?>
@@ -169,7 +169,7 @@ require __DIR__ . '/../includes/header.php';
                     <td><?= e(date('d/m/Y', strtotime($v['expire_date']))) ?></td>
                     <td><span class="badge <?= $statusClass ?>"><?= $statusLabel ?></span></td>
                     <td>
-                        <a href="<?= BASE_URL ?>admin/vouchers.php?edit=<?= $v['id'] ?>" class="btn btn-sm btn-outline-primary">Sửa</a>
+                        <a href="<?= BASE_URL ?>admin/vouchers.php?edit=<?= $v['id'] ?>#voucherForm" class="btn btn-sm btn-outline-primary">Sửa</a>
                         <form method="post" action="" class="d-inline" onsubmit="return confirm('Xóa voucher này?');">
                             <?= csrf_field() ?>
                             <input type="hidden" name="form_action" value="delete_voucher">

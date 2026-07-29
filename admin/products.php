@@ -140,7 +140,7 @@ require __DIR__ . '/../includes/header.php';
     </div>
 
     <div class="col-md-8">
-        <div class="card p-3 h-100">
+        <div class="card p-3 h-100 <?= $editProduct ? 'border border-primary border-2' : '' ?>" id="productForm">
             <h6 class="mb-3"><?= $editProduct ? 'Sửa sản phẩm' : 'Thêm sản phẩm mới' ?></h6>
 
             <?php if (!empty($errors)): ?>
@@ -263,7 +263,7 @@ require __DIR__ . '/../includes/header.php';
                     </td>
                     <td><?= (int) $p['stock'] ?></td>
                     <td>
-                        <a href="<?= BASE_URL ?>admin/products.php?edit=<?= $p['id'] ?>" class="btn btn-sm btn-outline-primary">Sửa</a>
+                        <a href="<?= BASE_URL ?>admin/products.php?edit=<?= $p['id'] ?>#productForm" class="btn btn-sm btn-outline-primary">Sửa</a>
                         <form method="post" action="" class="d-inline" onsubmit="return confirm('Xóa sản phẩm này?');">
                             <?= csrf_field() ?>
                             <input type="hidden" name="form_action" value="delete_product">
