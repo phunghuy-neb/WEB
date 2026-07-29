@@ -6,6 +6,45 @@ require_admin();
 
 $errors = [];
 
+// Xóa khách hàng: phải xóa dữ liệu con trước, đúng thứ tự, tránh lỗi khóa ngoại 1451
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['form_action'] ?? '') === 'delete_customer') {
+    verify_csrf();
+
+    $delId = (int) ($_POST['customer_id'] ?? 0);
+
+    try {
+        $pdo->beginTransaction();
+
+        // 1. Xóa chi tiết đơn hàng của các đơn thuộc khách này
+        $stmt = $pdo->prepare('DELETE FROM order_items WHERE order_id IN (SELECT id FROM orders WHERE user_id = ?)');
+        $stmt->execute([$delId]);
+
+        // 2. Xóa đơn hàng
+        $stmt = $pdo->prepare('DELETE FROM orders WHERE user_id = ?');
+        $stmt->execute([$delId]);
+
+        // 3. Xóa lịch sử điểm thưởng
+        $stmt = $pdo->prepare('DELETE FROM point_history WHERE user_id = ?');
+        $stmt->execute([$delId]);
+
+        // 4. Xóa danh sách yêu thích
+        $stmt = $pdo->prepare('DELETE FROM wishlists WHERE user_id = ?');
+        $stmt->execute([$delId]);
+
+        // 5. Xóa tài khoản khách (bắt buộc kèm role = customer)
+        $stmt = $pdo->prepare("DELETE FROM users WHERE id = ? AND role = 'customer'");
+        $stmt->execute([$delId]);
+
+        $pdo->commit();
+    } catch (PDOException $e) {
+        $pdo->rollBack();
+        $errors[] = 'Không xóa được khách hàng này.';
+    }
+
+    header('Location: ' . BASE_URL . 'admin/customers.php');
+    exit;
+}
+
 // Thêm khách hàng mới
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['form_action'] ?? '') === 'add_customer') {
     verify_csrf();
@@ -229,13 +268,28 @@ require __DIR__ . '/../includes/header.php';
                                 <?= $c['status'] === 'locked' ? 'Đã khóa' : 'Hoạt động' ?>
                             </span>
                         </td>
-                        <td>
-                            <a href="<?= BASE_URL ?>admin/customers.php?edit=<?= $c['id'] ?>#customerForm" class="btn btn-sm btn-outline-primary">
-                                Sửa
-                            </a>
-                            <a href="<?= BASE_URL ?>admin/customer_detail.php?id=<?= $c['id'] ?>" class="btn btn-sm btn-outline-primary">
-                                Xem chi tiết
-                            </a>
+                        <td class="text-nowrap">
+                            <!-- Xem chi tiết: form GET sang trang chi tiết -->
+                            <form method="get" action="<?= BASE_URL ?>admin/customer_detail.php" class="d-inline">
+                                <input type="hidden" name="id" value="<?= $c['id'] ?>">
+                                <button type="submit" class="btn btn-sm btn-outline-primary">Xem chi tiết</button>
+                            </form>
+                            <!-- Sửa: form GET giữ lại từ khóa đang tìm kiếm -->
+                            <form method="get" action="" class="d-inline ms-1">
+                                <input type="hidden" name="edit" value="<?= $c['id'] ?>">
+                                <?php if ($search !== ''): ?>
+                                    <input type="hidden" name="search" value="<?= e($search) ?>">
+                                <?php endif; ?>
+                                <button type="submit" class="btn btn-sm btn-outline-primary">Sửa</button>
+                            </form>
+                            <!-- Xóa: form POST kèm xác nhận -->
+                            <form method="post" action="" class="d-inline ms-1"
+                                  onsubmit="return confirm('Xóa khách hàng này? Toàn bộ đơn hàng và điểm thưởng của họ cũng bị xóa theo. Không hoàn tác được.')">
+                                <?= csrf_field() ?>
+                                <input type="hidden" name="form_action" value="delete_customer">
+                                <input type="hidden" name="customer_id" value="<?= $c['id'] ?>">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
+                            </form>
                         </td>
                     </tr>
                 <?php endforeach; ?>
